@@ -1,0 +1,61 @@
+{
+  "name": "kyberdyne-game-contract",
+  "version": "0.1.0",
+  "description": "kyberdyne-game-contract",
+  "repository": "",
+  "license": "MIT",
+  "scripts": {
+
+    "build:ts": "yarn run tsc",
+    "build:sc": "npx hardhat compile",
+    "clean": "npx hardhat clean",
+    "exportLayout": "HARDHAT_NETWORK=hardhat ts-node ./scripts/exportLayout.ts > layout.output",
+
+    "====deploy=======": "==========================diff mnemonic==============================",
+    "deployKBD": "HARDHAT_NETWORK=bsc ts-node ./scripts/deployKBD.ts",
+    "deployKBDTest": "HARDHAT_NETWORK=bsc ts-node ./scripts/deployKBDTest.ts",
+    "deployVesting": "HARDHAT_NETWORK=bsc ts-node ./scripts/deployVesting.ts",
+
+    "====update=======": "==========================diff mnemonic==============================",
+    "updateVesting": "HARDHAT_NETWORK=bsc ts-node ./scripts/updateVesting.ts",
+
+    "====info=========": "==========================diff mnemonic==============================",
+
+    "====upgrade======": "==========================diff mnemonic==============================",
+    "sysAdminUpgradeKBD": "HARDHAT_NETWORK=bsc ts-node ./scripts/upgrade/sysAdminUpgradeKBD.ts",
+
+    "====set-stats====": "==========================diff mnemonic==============================",
+
+    "====blocklist====": "==========================diff mnemonic==============================",
+
+    "====misc=========": "==========================diff mnemonic==============================",
+    "populateAirDropRecord": "HARDHAT_NETWORK=hardhat ts-node  ./scripts/populateAirDropRecord.ts",
+
+    "====test=========": "==========================diff mnemonic==============================",
+
+    "test": "echo \"not supported\""
+
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.4.2",
+    "csv-parse": "^4.15.3",
+    "keccak256": "^1.0.3",
+    "sqlite3": "^5.0.2",
+    "typeorm": "^0.2.31",
+    "cron": "1.8.2",
+    "@types/cron": "1.7.2",
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@types/chai": "^4.2.15",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^14.14.35",
+    "chai": "^4.3.4",
+    "ethereum-waffle": "^3.3.0",
+    "ethers": "^5.0.32",
+    "hardhat": "^2.1.2",
+    "hardhat-storage-layout": "^0.1.6",
+    "mocha": "^8.3.2",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
+  }
+}
