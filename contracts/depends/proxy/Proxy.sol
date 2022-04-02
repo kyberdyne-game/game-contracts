@@ -47,19 +47,19 @@ contract Proxy is Base, EnhancedMap, EnhancedUniqueIndexMap {
     //===================================================================================
 
     //
-    function sysCountDelegate() public view returns (uint256){
+    function sysCountDelegate() view public returns (uint256){
         return sysUniqueIndexMapSize(delegatesSlot);
     }
 
-    function sysGetDelegateAddress(uint256 index) public view returns (address){
+    function sysGetDelegateAddress(uint256 index) view public returns (address){
         return address(uint160(uint256(sysUniqueIndexMapGetValue(delegatesSlot, index))));
     }
 
-    function sysGetDelegateIndex(address addr) public view returns (uint256) {
+    function sysGetDelegateIndex(address addr) view public returns (uint256) {
         return uint256(sysUniqueIndexMapGetIndex(delegatesSlot, bytes32(uint256(uint160(addr)))));
     }
 
-    function sysGetDelegateAddresses() public view returns (address[] memory){
+    function sysGetDelegateAddresses() view public returns (address[] memory){
         uint256 count = sysCountDelegate();
         address[] memory delegates = new address[](count);
         for (uint256 i = 0; i < count; i++) {
@@ -69,7 +69,7 @@ contract Proxy is Base, EnhancedMap, EnhancedUniqueIndexMap {
     }
 
     //add delegates on current version
-    function sysAddDelegates(address[] memory _inputs) public onlyAdmin {
+    function sysAddDelegates(address[] memory _inputs) external onlyAdmin {
         for (uint256 i = 0; i < _inputs.length; i ++) {
             sysUniqueIndexMapAdd(delegatesSlot, bytes32(uint256(uint160(_inputs[i]))));
             emit DelegateSet(_inputs[i], true);
@@ -78,7 +78,7 @@ contract Proxy is Base, EnhancedMap, EnhancedUniqueIndexMap {
 
     //delete delegates
     //be careful, if you delete a delegate, the index will change
-    function sysDelDelegates(address[] memory _inputs) public onlyAdmin {
+    function sysDelDelegates(address[] memory _inputs) external onlyAdmin {
         for (uint256 i = 0; i < _inputs.length; i ++) {
 
             //travers all abis to delete those abis mapped to the given address
@@ -108,7 +108,7 @@ contract Proxy is Base, EnhancedMap, EnhancedUniqueIndexMap {
                 address delegate;
                 (selector, delegate) = sysGetSelectorAndDelegateByIndex(k);
                 if (delegate == _inputs[i]) {
-                    sysSetSelectorAndDelegate(selector, address(0));
+                    _sysSetSelectorAndDelegate(selector, address(0));
                 }
                 else {
                     k++;
@@ -116,7 +116,7 @@ contract Proxy is Base, EnhancedMap, EnhancedUniqueIndexMap {
             }
 
             if (sysGetSigZero() == _inputs[i]) {
-                sysSetSigZero(address(0x00));
+                _sysSetSigZero(address(0x00));
             }
 
             sysUniqueIndexMapDelArrange(delegatesSlot, bytes32(uint256(uint160(_inputs[i]))));
@@ -125,7 +125,7 @@ contract Proxy is Base, EnhancedMap, EnhancedUniqueIndexMap {
     }
 
     //add and delete delegates
-    function sysReplaceDelegates(address[] memory _delegatesToDel, address[] memory _delegatesToAdd) public onlyAdmin {
+    function sysReplaceDelegates(address[] memory _delegatesToDel, address[] memory _delegatesToAdd) external onlyAdmin {
         require(_delegatesToDel.length == _delegatesToAdd.length, "sysReplaceDelegates, length does not match");
         for (uint256 i = 0; i < _delegatesToDel.length; i ++) {
             sysUniqueIndexMapReplace(delegatesSlot, bytes32(uint256(uint160(_delegatesToDel[i]))), bytes32(uint256(uint160(_delegatesToAdd[i]))));
@@ -136,15 +136,19 @@ contract Proxy is Base, EnhancedMap, EnhancedUniqueIndexMap {
 
     //=============================================
 
-    function sysGetSigZero() public view returns (address){
+    function sysGetSigZero() view public returns (address){
         return address(uint160(uint256(sysLoadSlotData(userSigZeroSlot))));
     }
 
-    function sysSetSigZero(address _input) public onlyAdmin {
+    function sysSetSigZero(address _input) external onlyAdmin {
+        _sysSetSigZero(_input);
+    }
+
+    function _sysSetSigZero(address _input) internal {
         sysSaveSlotData(userSigZeroSlot, bytes32(uint256(uint160(_input))));
     }
 
-    function sysGetAdmin() public view returns (address){
+    function sysGetAdmin() view public returns (address){
         return address(uint160(uint256(sysLoadSlotData(adminSlot))));
     }
 
@@ -152,7 +156,7 @@ contract Proxy is Base, EnhancedMap, EnhancedUniqueIndexMap {
         sysSaveSlotData(adminSlot, bytes32(uint256(uint160(_input))));
     }
 
-    function sysGetRevertMessage() public view returns (uint256){
+    function sysGetRevertMessage() view public returns (uint256){
         return uint256(sysLoadSlotData(revertMessageSlot));
     }
 
@@ -160,7 +164,7 @@ contract Proxy is Base, EnhancedMap, EnhancedUniqueIndexMap {
         sysSaveSlotData(revertMessageSlot, bytes32(_input));
     }
 
-    function sysGetOutOfService() public view returns (uint256){
+    function sysGetOutOfService() view public returns (uint256){
         return uint256(sysLoadSlotData(outOfServiceSlot));
     }
 
@@ -168,7 +172,7 @@ contract Proxy is Base, EnhancedMap, EnhancedUniqueIndexMap {
         sysSaveSlotData(outOfServiceSlot, bytes32(_input));
     }
 
-    function sysGetTransparent() public view returns (uint256){
+    function sysGetTransparent() view public returns (uint256){
         return uint256(sysLoadSlotData(transparentSlot));
     }
 
@@ -180,14 +184,14 @@ contract Proxy is Base, EnhancedMap, EnhancedUniqueIndexMap {
 
     //abi and delegates should not be 0x00 in mapping;
     //set delegate to 0x00 for delete the entry
-    function sysSetSelectorsAndDelegates(bytes4[] memory selectors, address[] memory delegates) public onlyAdmin {
+    function sysSetSelectorsAndDelegates(bytes4[] memory selectors, address[] memory delegates) external onlyAdmin {
         require(selectors.length == delegates.length, "sysSetUserSelectorsAndDelegates, length does not matchs");
         for (uint256 i = 0; i < selectors.length; i ++) {
-            sysSetSelectorAndDelegate(selectors[i], delegates[i]);
+            _sysSetSelectorAndDelegate(selectors[i], delegates[i]);
         }
     }
 
-    function sysSetSelectorAndDelegate(bytes4 selector, address delegate) public {
+    function _sysSetSelectorAndDelegate(bytes4 selector, address delegate) internal {
 
         require(selector != bytes4(0x00), "sysSetSelectorAndDelegate, selector should not be selector");
         //require(delegates[i] != address(0x00));
@@ -214,29 +218,28 @@ contract Proxy is Base, EnhancedMap, EnhancedUniqueIndexMap {
             //updating
             sysEnhancedMapReplace(userAbiSlot, bytes32(selector), bytes32(uint256(uint160(delegate))));
         }
-
     }
 
-    function sysGetDelegateBySelector(bytes4 selector) public view returns (address){
+    function sysGetDelegateBySelector(bytes4 selector) view public returns (address){
         return address(uint160(uint256(sysEnhancedMapGet(userAbiSlot, bytes32(selector)))));
     }
 
-    function sysCountSelectors() public view returns (uint256){
+    function sysCountSelectors() view public returns (uint256){
         return sysEnhancedMapSize(userAbiSlot);
     }
 
-    function sysGetSelector(uint256 index) public view returns (bytes4){
+    function sysGetSelector(uint256 index) view public returns (bytes4){
         bytes4 selector = bytes4(sysUniqueIndexMapGetValue(userAbiSearchSlot, index));
         return selector;
     }
 
-    function sysGetSelectorAndDelegateByIndex(uint256 index) public view returns (bytes4, address){
+    function sysGetSelectorAndDelegateByIndex(uint256 index) view public returns (bytes4, address){
         bytes4 selector = sysGetSelector(index);
         address delegate = sysGetDelegateBySelector(selector);
         return (selector, delegate);
     }
 
-    function sysGetSelectorsAndDelegates() public view returns (bytes4[] memory selectors, address[] memory delegates){
+    function sysGetSelectorsAndDelegates() view public returns (bytes4[] memory selectors, address[] memory delegates){
         uint256 count = sysCountSelectors();
         selectors = new bytes4[](count);
         delegates = new address[](count);
@@ -245,14 +248,14 @@ contract Proxy is Base, EnhancedMap, EnhancedUniqueIndexMap {
         }
     }
 
-    function sysClearSelectorsAndDelegates() public {
+    function sysClearSelectorsAndDelegates() external onlyAdmin {
         uint256 count = sysCountSelectors();
         for (uint256 i = 0; i < count; i ++) {
             bytes4 selector;
             address delegate;
             //always delete the first, after 'count' times, it will clear all
             (selector, delegate) = sysGetSelectorAndDelegateByIndex(1);
-            sysSetSelectorAndDelegate(selector, address(0x00));
+            _sysSetSelectorAndDelegate(selector, address(0x00));
         }
     }
 
